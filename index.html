@@ -38,8 +38,11 @@
         class Debris {
             constructor() {
                 this.radius = 20;
+                this.clickRadius = 30;
                 this.setRandomPosition();
                 this.speed = Math.random() * 0.5 + 0.5;
+                this.zigzag = Math.random() < 0.3;
+                this.zigzagAngle = 0;
                
             }
 
@@ -56,6 +59,13 @@
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 let moveX = (dx / distance) * this.speed * difficulty;
                 let moveY = (dy / distance) * this.speed * difficulty;
+
+                if (this.zigzag) {
+                    this.zigzagAngle += 0.1;
+                    const zigzagStrength = 2;
+                    moveX += Math.sin(this.zigzagAngle) * zigzagStrength;
+                    moveY += Math.cos(this.zigzagAngle) * zigzagStrength;
+                }
 
                 this.x += moveX;
                 this.y += moveY;
@@ -99,6 +109,9 @@
             draw() {
                 c.save();
                 c.translate(this.x, this.y);
+
+                const angle = Math.atan2(center.y - this.y, center.x - this.x);
+                c.rotate(angle);
               
               
                 // Draw spaceship body
@@ -156,6 +169,25 @@
 
         gameLoop();
 
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            for (let i = objects.length - 1; i >= 0; i--) {
+                const obj = objects[i];
+                if (obj instanceof Debris) {
+                    const dx = obj.x - clickX;
+                    const dy = obj.y - clickY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < obj.clickRadius) {
+                        objects.splice(i, 1);
+                        score += 10;
+                        break;
+                    }
+                }
+            }
+        });
         
     </script>
 </body>
