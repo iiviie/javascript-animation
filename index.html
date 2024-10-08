@@ -36,15 +36,24 @@
             }
         };
 
+        const debrisImage = new Image();
+        debrisImage.src = '/images/debris.png';
+        let debrisImageLoaded = false;
+        debrisImage.onload = () => {
+            debrisImageLoaded = true;
+        };
+
         class Debris {
             constructor() {
-                this.radius = 20;
-                this.clickRadius = 30;
+                this.width = 50; 
+                this.height = 50; 
+                this.clickRadius = 40;
                 this.setRandomPosition();
                 this.speed = Math.random() * 0.5 + 0.5;
                 this.zigzag = Math.random() < 0.3;
                 this.zigzagAngle = 0;
-               
+                this.rotation = 0;
+                this.rotationSpeed = Math.random() * 0.1 - 0.05;
             }
 
             setRandomPosition() {
@@ -70,14 +79,24 @@
 
                 this.x += moveX;
                 this.y += moveY;
+                this.rotation += this.rotationSpeed;
             }
 
             draw() {
-                c.beginPath();
-                c.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                c.fillStyle = 'gray';
-                c.fill();
-                c.closePath();
+                if (debrisImageLoaded) {
+                    c.save();
+                    c.translate(this.x, this.y);
+                    c.rotate(this.rotation);
+                    c.drawImage(debrisImage, -this.width / 2, -this.height / 2, this.width, this.height);
+                    c.restore();
+                } else {
+                    // Fallback to circle if image is  not loaded
+                    c.beginPath();
+                    c.arc(this.x, this.y, this.width / 2, 0, Math.PI * 2);
+                    c.fillStyle = 'gray';
+                    c.fill();
+                    c.closePath();
+                }
             }
         }
 
@@ -165,6 +184,7 @@
             if (!gameRunning) {
                 spawnObjects();
                 objects.forEach(obj => obj.update());
+                checkCollisions();
                 difficulty += 0.00005;
             }
         }
@@ -210,6 +230,24 @@
                 }
             }
         });
+
+
+        //add collison detection and its implementation to the health of the planet
+        function checkCollisions() {
+            for (let i = objects.length - 1; i >= 0; i--) {
+                const obj = objects[i];
+                const dx = obj.x - center.x;
+                const dy = obj.y - center.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < planet.radius + (obj.width / 2)) {
+                    objects.splice(i, 1);
+                    planet.health -= 10;
+                    if (planet.health <= 0) gameRunning = true;
+                }
+            }
+        }
+
         
     </script>
 </body>
