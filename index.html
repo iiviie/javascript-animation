@@ -5,31 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Java-script animation</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #f0f0f0;
-            font-family: Arial, sans-serif;
-        }
-        canvas {
-            border: 1px solid #000;
-            margin-top: 20px;
-        }
-        button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
+        body { margin: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #000; }
+        canvas { border: 1px solid #fff; }
     </style>
 </head>
 <body>
-    <h1>Java-script animation</h1>
-    
+    <h1>Galactic Defender</h1>
+    <canvas id="canvas"></canvas>
     <script>
+        // things i want in my game (also if time allows put this entire game as a alarm clock so that it forcefully wakes you up)
+        // 1. player
+        // 2. enemies
+        // 3. score
+        // 4. should have increasing difficulty
+        // 5. two enemies , one should be space debrbis and other should be enemy ship
+        // 6. protect the planet from enemies which is locatted at the centre of the canvas
+        // final concept is , that two objects the space debris and the space ship move towards the planet and we have to either click or typoe to defend tge planet . the difficulty increases with time .
+
+
+        // firstly let set up the canvas
+        const canvas = document.getElementById('canvas');
+        const c = canvas.getContext('2d');
+
+
+        // lets begin with deciding  our game variables
+        let score = 0;
+        let difficulty = 1;
+        const objects = [];
+
+        const center = { x: canvas.width / 2, y: canvas.height / 2 }; // we need the centre of the canvas for our planet
+
+
+        // lets make our required objects first , that are the spaceships ,the debris and the planet 
+
+        const planet = {
+            x: center.x,
+            y: center.y,
+            radius: 30,
+            health: 100,
+            draw() {
+                c.beginPath();
+                c.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                c.fillStyle = 'blue';
+                c.fill();
+                c.closePath();
+            }
+        };
+
+
+        class Debris {
+            constructor() {
+                this.radius = 20;
+                this.setRandomPosition();
+                this.speed = Math.random() * 0.5 + 0.5;
+            }
+
+            setRandomPosition() {
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.max(canvas.width, canvas.height);
+            }
+
+            draw() {
+                c.beginPath();
+                c.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                c.fillStyle = 'gray';
+                c.fill();
+                c.closePath();
+            }
+        }
+
+
+
+
+
+    
 
     </script>
 </body>
