@@ -3,40 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Java-script animation</title>
+    <title>Space Defense Game</title>
     <style>
         body { margin: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #000; }
         canvas { border: 1px solid #fff; }
     </style>
 </head>
 <body>
-    <h1>Galactic Defender</h1>
-    <canvas id="canvas"></canvas>
+    <canvas id="canvas" width="800" height="600"></canvas>
     <script>
-        // things i want in my game (also if time allows put this entire game as a alarm clock so that it forcefully wakes you up)
-        // 1. player
-        // 2. enemies
-        // 3. score
-        // 4. should have increasing difficulty
-        // 5. two enemies , one should be space debrbis and other should be enemy ship
-        // 6. protect the planet from enemies which is locatted at the centre of the canvas
-        // final concept is , that two objects the space debris and the space ship move towards the planet and we have to either click or typoe to defend tge planet . the difficulty increases with time .
-
-
-        // firstly let set up the canvas
         const canvas = document.getElementById('canvas');
         const c = canvas.getContext('2d');
 
-
-        // lets begin with deciding  our game variables
         let score = 0;
+        let gameRunning = false;
         let difficulty = 1;
+        const center = { x: canvas.width / 2, y: canvas.height / 2 };
         const objects = [];
-
-        const center = { x: canvas.width / 2, y: canvas.height / 2 }; // we need the centre of the canvas for our planet
-
-
-        // lets make our required objects first , that are the spaceships ,the debris and the planet 
 
         const planet = {
             x: center.x,
@@ -52,17 +35,31 @@
             }
         };
 
-
         class Debris {
             constructor() {
                 this.radius = 20;
+                this.clickRadius = 30; // Larger clickable radius
                 this.setRandomPosition();
                 this.speed = Math.random() * 0.5 + 0.5;
+               
             }
 
             setRandomPosition() {
                 const angle = Math.random() * Math.PI * 2;
                 const distance = Math.max(canvas.width, canvas.height);
+                this.x = center.x + Math.cos(angle) * distance;
+                this.y = center.y + Math.sin(angle) * distance;
+            }
+
+            update() {
+                const dx = center.x - this.x;
+                const dy = center.y - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                let moveX = (dx / distance) * this.speed * difficulty;
+                let moveY = (dy / distance) * this.speed * difficulty;
+
+                this.x += moveX;
+                this.y += moveY;
             }
 
             draw() {
@@ -74,12 +71,93 @@
             }
         }
 
+        class Spaceship {
+            constructor() {
+                this.width = 40;
+                this.height = 30;
+                this.setRandomPosition();
+                this.speed = Math.random() * 0.3 + 0.2;
+            }
+
+            setRandomPosition() {
+                const side = Math.floor(Math.random() * 4);
+                switch (side) {
+                    case 0: this.x = Math.random() * canvas.width; this.y = -this.height; break;
+                    case 1: this.x = canvas.width + this.width; this.y = Math.random() * canvas.height; break;
+                    case 2: this.x = Math.random() * canvas.width; this.y = canvas.height + this.height; break;
+                    case 3: this.x = -this.width; this.y = Math.random() * canvas.height; break;
+                }
+            }
+
+            update() {
+                const dx = center.x - this.x;
+                const dy = center.y - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                this.x += (dx / distance) * this.speed * difficulty;
+                this.y += (dy / distance) * this.speed * difficulty;
+            }
+
+            draw() {
+                c.save();
+                c.translate(this.x, this.y);
+              
+              
+                // Draw spaceship body
+                c.fillStyle = 'silver';
+                c.beginPath();
+                c.moveTo(this.width / 2, 0);
+                c.lineTo(-this.width / 2, this.height / 3);
+                c.lineTo(-this.width / 3, 0);
+                c.lineTo(-this.width / 2, -this.height / 3);
+                c.closePath();
+                c.fill();
+
+                // Draw cockpit
+                c.fillStyle = 'lightblue';
+                c.beginPath();
+                c.ellipse(this.width / 6, 0, this.width / 6, this.height / 4, 0, 0, Math.PI * 2);
+                c.fill();
 
 
+                c.restore();
+            }
+        }
 
+        function spawnObjects() {
+            if (Math.random() < 0.01 * difficulty) objects.push(new Debris());
+            if (Math.random() < 0.005 * difficulty) objects.push(new Spaceship());
+        }
 
-    
+        //draws the objects in the teh objects array
+        function draw() {
+            c.clearRect(0, 0, canvas.width, canvas.height);
+            planet.draw();
+            objects.forEach(obj => obj.draw());
 
+            c.fillStyle = 'white';
+            c.font = '20px Arial';
+            c.textAlign = 'left';
+            c.fillText(`Score: ${score}`, 10, 30);
+            c.fillText(`Health: ${planet.health}`, 10, 60);
+        }
+
+        function update() {
+            if (!gameRunning) {
+                spawnObjects();
+                objects.forEach(obj => obj.update());
+                difficulty += 0.00005;
+            }
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop); //this thing is pretty cool
+        }
+
+        gameLoop();
+
+        
     </script>
 </body>
 </html>
