@@ -6,7 +6,8 @@
     <title>Space Defense Game</title>
     <style>
         body { margin: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #000; }
-        canvas { border: 1px solid #fff; }
+        canvas { border: 1px solid #fff; 
+        background-image:url(/images/space-background.jpg);}
     </style>
 </head>
 <body>
@@ -86,6 +87,7 @@
                 this.height = 30;
                 this.setRandomPosition();
                 this.speed = Math.random() * 0.3 + 0.2;
+                this.letter = ['W', 'A', 'S', 'D'][Math.floor(Math.random() * 4)];
             }
 
             setRandomPosition() {
@@ -125,11 +127,17 @@
                 c.fill();
 
                 // Draw cockpit
-                c.fillStyle = 'lightblue';
+                c.fillStyle = 'red';
                 c.beginPath();
                 c.ellipse(this.width / 6, 0, this.width / 6, this.height / 4, 0, 0, Math.PI * 2);
                 c.fill();
 
+                // Draw letter
+                c.fillStyle = 'white';
+                c.textAlign = 'center';
+                c.textBaseline = 'middle';
+
+                c.fillText(this.letter, -this.width / 6, 0);
 
                 c.restore();
             }
@@ -183,6 +191,20 @@
                     if (distance < obj.clickRadius) {
                         objects.splice(i, 1);
                         score += 10;
+                        break;
+                    }
+                }
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toUpperCase();
+            if (['W', 'A', 'S', 'D'].includes(key)) {
+                for (let i = objects.length - 1; i >= 0; i--) {
+                    const obj = objects[i];
+                    if (obj instanceof Spaceship && obj.letter === key) {
+                        objects.splice(i, 1);
+                        score += 20;
                         break;
                     }
                 }
