@@ -1,19 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Space Defense Game</title>
-    <style>
-        body { margin: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #000; }
-        canvas { border: 1px solid #fff; 
-        background-image:url(/images/space-background.jpg);}
-    </style>
-</head>
-<body>
-    <canvas id="canvas" width="800" height="600"></canvas>
-    <script>
-        const canvas = document.getElementById('canvas');
+const canvas = document.getElementById('canvas');
         const c = canvas.getContext('2d');
 
         let score = 0;
@@ -22,17 +7,17 @@
         const center = { x: canvas.width / 2, y: canvas.height / 2 };
         const objects = [];
 
+        const planetImage = new Image();
+        planetImage.src = '/images/planetsprite.png';
+        const collisionSound = new Audio('/sounds/collision.mp3');
+
         const planet = {
             x: center.x,
             y: center.y,
             radius: 30,
             health: 100,
             draw() {
-                c.beginPath();
-                c.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                c.fillStyle = 'blue';
-                c.fill();
-                c.closePath();
+                c.drawImage(planetImage, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
             }
         };
 
@@ -247,8 +232,3 @@
                 }
             }
         }
-
-        
-    </script>
-</body>
-</html>
